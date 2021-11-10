@@ -115,3 +115,20 @@ export function param2Obj(url) {
   })
   return obj
 }
+
+// 将列表行数据转换成属性数据
+export function trandListToTreeData(list, rootValue) {
+  debugger
+  var arr = []
+  list.forEach(item => {
+    // eslint-disable-next-line no-empty
+    if (item.pid === rootValue) {
+      const children = trandListToTreeData(list, item.id)
+      if (children.length > 0) {
+        item.children = children
+      }
+      arr.push(item)
+    }
+  })
+  return arr
+}
