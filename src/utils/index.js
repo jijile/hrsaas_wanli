@@ -118,7 +118,6 @@ export function param2Obj(url) {
 
 // 将列表行数据转换成属性数据
 export function trandListToTreeData(list, rootValue) {
-  debugger
   var arr = []
   list.forEach(item => {
     // eslint-disable-next-line no-empty

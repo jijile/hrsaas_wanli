@@ -49,8 +49,11 @@ export default {
     operateDeparts(command) {
       if (command === 'add') {
         //   添加子部门
+        // 通知父组件添加部门弹框
+        this.$emit('addDepts', this.treeNode)
       } else if (command === 'edit') {
         //   编辑子部门
+        this.$emit('editDepts', this.treeNode)
       } else {
         //   删除子部门
         this.$confirm('您确定要删除该组织架构吗？').then(() => {
