@@ -11,5 +11,12 @@ export default {
       title: '员工',
       icon: 'people'
     }
+  }, {
+    path: 'detail/:id', // 动态路由传参，？表示可以传可以不传
+    component: () => import('@/views/employees/detail'),
+    meta: {
+      title: '员工详情'
+    },
+    hidden: true // 不显示在左侧菜单中
   }]
 }
