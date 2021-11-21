@@ -69,7 +69,7 @@ export default {
     /* 上传 */
     async upload(parmas) {
       if (parmas.file) {
-        const fileName = 'picture'
+        const fileName = 'picture.png'
         const client = new OSS({
           region: 'oss-cn-hangzhou',
           accessKeyId: ' LTAI5tNrs91hAjHxWRyJ2hEm',
@@ -77,9 +77,12 @@ export default {
           bucket: 'zwl1'
         })
         console.log('开始上传', parmas.file)
+        debugger
         try {
-          const res = await client.multipartUpload(fileName, parmas.file)
-          console.log(res)
+          // const res = await client.multipartUpload(fileName, parmas.file)
+          // console.log(res)
+          const result = await client.put(fileName, parmas.file)
+          console.log(result)
           this.$message.success('上传成功')
         } catch (error) {
           console.log(error)
