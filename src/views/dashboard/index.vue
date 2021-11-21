@@ -8,7 +8,7 @@
       <!-- <span slot="before">我是你爸爸</span> -->
       <el-button slot="after" type="primary">导入excel</el-button>
     </page-tools>
-    <upload-excel />
+    <image-upload />
   </div>
 </template>
 

@@ -23,6 +23,7 @@ service.interceptors.request.use(config => {
       return Promise.reject(new Error('无效token'))
     }
     config.headers['Authorization'] = `Bearer ${store.getters.token}`
+    config.headers['Access-Control-Allow-Origin'] = '*'
   }
   return config
 }, error => {
