@@ -16,9 +16,22 @@ router.beforeEach(async(to, from, next) => {
       if (!store.state.user.userInfo.userId) {
         console.log('获取用户信息')
         //   没有获取过用户信息，开始获取用户信息
-        await store.dispatch('user/getUserInfo')
+        // result 是返回的用户信息数据
+        const { roles } = await store.dispatch('user/getUserInfo')
+
+        // 调用vuex permission m模块筛选出用户可用的路由权限
+        // 这里面得第二个参数是用户信息里面的roles.menus
+        // routes 是筛选得到的动态路由
+        const routes = await store.dispatch('permission/filterRoutes', roles.menus)
+        console.log('动态路由', routes)
+        // 调用router实例的addRoutes()方法 添加动态路由到路由表
+        // 错误页面404必须放到所有路由之后，所以要加在这个地方
+        router.addRoutes([...routes], // 404 page must be placed at the end !!!
+          { path: '*', redirect: '/404', hidden: true })
+        next(to.path) // 必须要调用to.path实现跳转
+      } else {
+        next()
       }
-      next()
     }
   } else {
     //   是否在白名单

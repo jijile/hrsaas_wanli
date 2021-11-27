@@ -14,6 +14,7 @@
     >
       <i class="el-icon-plus avatar-uploader-icon" />
     </el-upload>
+    <el-progress v-if="showProgress" :percentage="percent" style="width: 180px" />
     <el-dialog :visible.sync="showDialog" :title="imgName">
       <img :src="imaUrl" alt="" style="width:100%">
     </el-dialog>
@@ -28,7 +29,11 @@ export default {
       showDialog: false,
       imaUrl: '',
       imgName: '',
-      fileList: [{ url: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Ffile02.16sucai.com%2Fd%2Ffile%2F2014%2F0829%2Fb871e1addf5f8e96f3b390ece2b2da0d.jpg&refer=http%3A%2F%2Ffile02.16sucai.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1639967891&t=197e7df4e70e95649f9afae8220ef948', name: '风景' }]
+      fileList: [
+      ], // 存储图片的数组
+      currentFileUID: '',
+      percent: 0,
+      showProgress: false
     }
   },
   computed: {
@@ -49,6 +54,7 @@ export default {
       this.fileList = fileList
     },
     changeFile(file, fileList) {
+      this.fileList = fileList
     },
     beforeUpload(file) {
     //  检查文件类型
@@ -63,6 +69,8 @@ export default {
         this.$message.error('上传文件大小不能超过5M')
         return false
       }
+      this.currentFileUID = file.uid
+      this.showProgress = true
       //   最后一定要return true
       return true
     },
@@ -72,21 +80,44 @@ export default {
         const fileName = 'picture.png'
         const client = new OSS({
           region: 'oss-cn-hangzhou',
-          accessKeyId: '',
-          accessKeySecret: '',
+          accessKeyId: 'LTAI5tNrs91hAjHxWRyJ2hEm',
+          accessKeySecret: 'ZMhPrw4R5xhMJIfSApXvA5JkoF4LPr',
           bucket: 'zwl1'
         })
         console.log('开始上传', parmas.file)
-        debugger
+        // const res = await client.multipartUpload(fileName, parmas.file)
+        // console.log(res)
         try {
-          // const res = await client.multipartUpload(fileName, parmas.file)
-          // console.log(res)
-          const result = await client.put(fileName, parmas.file)
-          console.log(result)
+          // const result = await client.multipartUpload(fileName, parmas.file, {
+          //   progress: function(p) { // 获取进度条的值
+          //     console.log('进度', p)
+          //     this.progress = p * 100 // 更新进度条
+          //   }
+          // })
+          const result = await client.put(fileName, parmas.file, {
+            progress: function(p) { // 获取进度条的值
+              console.log('进度', p)
+              this.progress = p * 100 // 更新进度条
+            }
+          })
+          const { url } = result
+          debugger
+          if (url) {
+            console.log(url)
+            debugger
+            this.fileList = this.fileList.map(item => {
+              if (item.uid === this.currentFileUID) {
+                return { ...item, url, upload: true }
+              }
+              return item
+            })
+            console.log('新的文件列表', this.fileList)
+          }
+          this.showProgress = false
+          this.percent = 0
           this.$message.success('上传成功')
         } catch (error) {
-          console.log(error)
-          this.$message.error('上传失败')
+          this.$message.error(error.message)
         }
       }
     }

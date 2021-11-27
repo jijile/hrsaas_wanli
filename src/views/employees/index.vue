@@ -6,7 +6,7 @@
         <template v-slot:after>
           <el-button size="small" type="success" @click="$router.push('/import')">excel导入</el-button>
           <el-button size="small" type="danger" @click="exportData">excel导出</el-button>
-          <el-button size="small" type="primary" @click="showDialog = true">新增员工</el-button>
+          <el-button size="small" type="primary" :disabled="!checkPermission('POINT-USER-ADD')" @click="showDialog = true">新增员工</el-button>
         </template>
       </page-tools>
       <el-card>
@@ -14,6 +14,11 @@
           <el-table-column type="index" label="序号" sortable="" />
           <el-table-column prop="mobile" label="手机号" sortable="" />
           <el-table-column prop="username" label="姓名" sortable="" />
+          <el-table-column width="120px" label="头像" align="center">
+            <template v-slot="{ row }">
+              <img v-imageerror="require('@/assets/common/head.jpg')" :src="row.staffPhoto" alt="" style="border-radius: 50%; width: 100px; height: 100px; padding: 10px" @click="showQrCode(row.staffPhoto)">
+            </template>
+          </el-table-column>
           <el-table-column prop="workNumber" label="工号" sortable="" />
           <el-table-column prop="formOfEmployment" :formatter="formatEmployment" label="聘用形式" sortable="" />
           <el-table-column prop="departmentName" label="部门" sortable="" />
@@ -35,7 +40,7 @@
               <el-button type="text" size="small">转正</el-button>
               <el-button type="text" size="small">调岗</el-button>
               <el-button type="text" size="small">离职</el-button>
-              <el-button type="text" size="small">角色</el-button>
+              <el-button type="text" size="small" @click="editRole(row.id)">角色</el-button>
               <el-button type="text" size="small" @click="delEmployee(row.id)">删除</el-button>
             </template>
           </el-table-column>
@@ -48,6 +53,13 @@
       <!-- sync修饰符子组件改变父组件数据的语法糖 -->
       <add-employee :show-dialog.sync="showDialog" />
     </div>
+    <el-dialog title="二维码" :visible.sync="showCodeDialog">
+      <el-row type="flex" justify="center">
+        <canvas ref="myCanvas" />
+      </el-row>
+    </el-dialog>
+    <!-- 显示分配角色组件 -->
+    <assign-role ref="assignRole" :show-role-dialog.sync="showRoleDialog" :user-id="userId" />
   </div>
 </template>
 
@@ -55,10 +67,13 @@
 import { getEmployeeList, delEmployee } from '@/api/employees'
 import employeeEnum from '@/api/constant/employees' // 引入员工的额枚举类型
 import AddEmployee from './components/add-employee.vue'
-import { formatDate } from '@/api/filters'
+import { formatDate } from '@/filters'
+import QRCode from 'qrcode'
+import AssignRole from './components/assign-role.vue'
 export default {
   components: {
-    AddEmployee
+    AddEmployee,
+    AssignRole
   },
   data() {
     return {
@@ -69,7 +84,10 @@ export default {
       },
       total: 0, // 总数
       loading: false, // 控制显示加载遮罩UI
-      showDialog: false
+      showDialog: false,
+      showCodeDialog: false, // 显示二维码弹层
+      showRoleDialog: false, // 显示分配角色按钮
+      userId: '' // userID
     }
   },
   created() {
@@ -148,6 +166,25 @@ export default {
     },
     lookUserInfo(id) {
       this.$router.push(`/employees/detail/${id}`)
+    },
+    showQrCode(url) {
+      if (url) {
+        this.showCodeDialog = true
+        // 下一次更新循环结束之后调用此方法获取更新后的dom节点
+        this.$nextTick(() => {
+          QRCode.toCanvas(this.$refs.myCanvas, url) // 将地址转换成二维码
+        })
+      } else {
+        this.$message.warning('该用户还没有上传头像')
+      }
+    },
+    // 编辑角色事件
+    editRole(id) {
+      // 先把ID赋值过去
+      this.userId = id
+      // 调用组件中的方法获取角色列表
+      this.$refs.assignRole.getUserDetailByID(id)
+      this.showRoleDialog = true
     }
   }
 }

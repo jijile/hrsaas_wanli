@@ -1,5 +1,6 @@
 import { getToken, setToken, removeToken, setTime } from '@/utils/auth'
 import { login, getUserInfo, getUserDetailByID } from '@/api/user'
+import { resetRouter } from '@/router'
 // 放置状态
 const state = {
   token: getToken(), //  设置token共享状态，初始化vuex的时候 就先从缓存中读取
@@ -46,6 +47,12 @@ const actions = {
   logout(context) {
     context.commit('removeToken')
     context.commit('removeUserInfo')
+    // 调用路由中的方法重置路由
+    resetRouter()
+    // 设置vuex permmission中的routes的出事状态
+    // vuex 子模块调用子模块，如果不加锁情况下 可以随意调用，但是加了命名空间如何调用
+    // 调用时候需要添加第三个参数{ root: true }
+    context.commit('permission/setRoutes', [], { root: true })
   }
 }
 export default {

@@ -8,6 +8,7 @@ import attendancesRouter from './modules/attendances'
 import salarysRouter from './modules/salarys'
 import settingRouter from './modules/setting'
 import socialRouter from './modules/social'
+import userRouter from './modules/user'
 Vue.use(Router)
 
 /* Layout */
@@ -70,8 +71,9 @@ export const constantRoutes = [
       component: () => import('@/views/import')
     }]
   },
+  userRouter // 放置一个都可以访问的路由
   // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  // { path: '*', redirect: '/404', hidden: true }
 ]
 // 定义一个动态路由, 导出权限会用到
 export const asyncRouters = [
@@ -88,7 +90,7 @@ export const asyncRouters = [
 const createRouter = () => new Router({
   // mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
-  routes: [...asyncRouters, ...constantRoutes]
+  routes: [...constantRoutes]
 })
 
 const router = createRouter()
