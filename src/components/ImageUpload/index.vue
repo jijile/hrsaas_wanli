@@ -80,8 +80,8 @@ export default {
         const fileName = 'picture.png'
         const client = new OSS({
           region: 'oss-cn-hangzhou',
-          accessKeyId: 'LTAI5tNrs91hAjHxWRyJ2hEm',
-          accessKeySecret: 'ZMhPrw4R5xhMJIfSApXvA5JkoF4LPr',
+          accessKeyId: '',
+          accessKeySecret: '',
           bucket: 'zwl1'
         })
         console.log('开始上传', parmas.file)
